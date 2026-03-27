@@ -1,0 +1,9 @@
+yt-dlp
+openai-whisper
+groq
+python-dotenv
+pydub
+pip install youtube-transcript-api
+ffmpeg-python
+streamlit
+pip install fpdf
