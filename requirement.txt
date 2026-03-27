@@ -1,9 +1,11 @@
+streamlit
 yt-dlp
-openai-whisper
+youtube-transcript-api
 groq
+fpdf2
 python-dotenv
 pydub
-pip install youtube-transcript-api
 ffmpeg-python
-streamlit
-pip install fpdf
+google-generativeai
+openai-whisper
+tiktoken
