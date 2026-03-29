@@ -7,27 +7,28 @@ def gemini_summary(text):
 
     try:
 
-        model=genai.GenerativeModel("gemini-1.5-flash")
+        model = genai.GenerativeModel("gemini-1.5-flash")
 
-        prompt=f"""
+        prompt = f"""
 
 Create:
 
 SUMMARY
-KEY POINTS
-ACTION STEPS
+KEY TOPICS
 IMPORTANT IDEAS
+ACTION STEPS
+STUDY NOTES
 
 {text[:8000]}
 
 """
 
-        response=model.generate_content(prompt)
+        response = model.generate_content(prompt)
 
         return response.text
 
     except Exception as e:
 
-        print("Gemini failed:",e)
+        print("Gemini error:",e)
 
         raise Exception("Gemini failed")
