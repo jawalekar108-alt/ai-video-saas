@@ -27,7 +27,7 @@ def download_audio(url):
 
     ydl_opts={
 
-        'format':'bestaudio/best',
+        'format':'bestaudio',
 
         'outtmpl':output,
 
@@ -35,17 +35,19 @@ def download_audio(url):
 
         'noplaylist':True,
 
-        'retries':5,
+        'nocheckcertificate':True,
 
-        'fragment_retries':5,
+        'ignoreerrors':False,
 
-        'socket_timeout':30,
+        'retries':10,
+
+        'fragment_retries':10,
 
         'extractor_args':{
 
             'youtube':{
 
-                'player_client':['android','web']
+                'player_client':['web']
 
             }
 
@@ -57,7 +59,7 @@ def download_audio(url):
 
             'preferredcodec':'mp3',
 
-            'preferredquality':'128',
+            'preferredquality':'128'
 
         }]
 
@@ -69,10 +71,6 @@ def download_audio(url):
 
             info=ydl.extract_info(url,download=True)
 
-            if 'entries' in info:
-
-                info=info['entries'][0]
-
             filename=ydl.prepare_filename(info)
 
             filename=os.path.splitext(filename)[0]+".mp3"
@@ -81,6 +79,6 @@ def download_audio(url):
 
     except Exception as e:
 
-        print("Download failed:",e)
+        print("Download error:",e)
 
-        raise Exception("Audio download failed")
+        raise Exception("Download failed")
