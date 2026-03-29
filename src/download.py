@@ -1,45 +1,64 @@
 from youtube_transcript_api import YouTubeTranscriptApi
 import re
 
-def get_video_id(url):
+
+def extract_video_id(url):
 
     regex=r"(?:v=|\/)([0-9A-Za-z_-]{11})"
 
     match=re.search(regex,url)
 
-    if not match:
-        raise Exception("Invalid URL")
+    if match:
+        return match.group(1)
 
-    return match.group(1)
+    raise Exception("Invalid URL")
+
 
 
 def get_youtube_transcript(url):
 
-    video_id=get_video_id(url)
+    video_id=extract_video_id(url)
 
+    transcript_list=YouTubeTranscriptApi.list_transcripts(video_id)
+
+
+    # Try English first
     try:
 
-        transcript_list=YouTubeTranscriptApi.list_transcripts(video_id)
-
-        try:
-            transcript=transcript_list.find_transcript(['en'])
-
-        except:
-            transcript=transcript_list.find_generated_transcript(['en'])
+        transcript=transcript_list.find_transcript(['en'])
 
         data=transcript.fetch()
 
-        text=" ".join(
+        return " ".join([x['text'] for x in data])
 
-            x['text']
+    except:
+        pass
 
-            for x in data
 
-            if "[" not in x['text']
+    # Try auto English
+    try:
 
-        )
+        transcript=transcript_list.find_generated_transcript(['en'])
 
-        return text
+        data=transcript.fetch()
 
-    except Exception:
-        raise Exception("No captions available")
+        return " ".join([x['text'] for x in data])
+
+    except:
+        pass
+
+
+    # Try ANY language
+    try:
+
+        for t in transcript_list:
+
+            data=t.fetch()
+
+            return " ".join([x['text'] for x in data])
+
+    except:
+        pass
+
+
+    raise Exception("No captions available")
