@@ -27,7 +27,7 @@ def download_audio(url):
 
     ydl_opts={
 
-        'format':'bestaudio',
+        'format':'bestaudio[ext=m4a]/bestaudio/best',
 
         'outtmpl':output,
 
@@ -37,17 +37,15 @@ def download_audio(url):
 
         'nocheckcertificate':True,
 
-        'ignoreerrors':False,
+        'ignoreerrors':True,
 
-        'retries':10,
-
-        'fragment_retries':10,
+        'retries':3,
 
         'extractor_args':{
 
             'youtube':{
 
-                'player_client':['web']
+                'player_client':['web','tv']
 
             }
 
@@ -71,14 +69,16 @@ def download_audio(url):
 
             info=ydl.extract_info(url,download=True)
 
+            if not info:
+
+                raise Exception("Download blocked")
+
             filename=ydl.prepare_filename(info)
 
             filename=os.path.splitext(filename)[0]+".mp3"
 
         return filename,video_id
 
-    except Exception as e:
+    except:
 
-        print("Download error:",e)
-
-        raise Exception("Download failed")
+        return None,None
