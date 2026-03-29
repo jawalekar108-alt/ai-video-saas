@@ -19,7 +19,6 @@ def get_video_id(url):
     return "video"
 
 
-
 def download_audio(url):
 
     video_id=get_video_id(url)
@@ -31,6 +30,8 @@ def download_audio(url):
 
         'format':'bestaudio/best',
 
+        'outtmpl':output,
+
         'quiet':True,
 
         'noplaylist':True,
@@ -39,21 +40,11 @@ def download_audio(url):
 
         'retries':1,
 
-        'extractor_args':{
+        'nocheckcertificate':True,
 
-            'youtube':{
+        'geo_bypass':True,
 
-                'player_client':['web']
-
-            }
-
-        },
-
-        'http_headers':{
-
-            'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'
-
-        }
+        'extract_flat':False,
 
     }
 
@@ -72,6 +63,8 @@ def download_audio(url):
 
             return filename,video_id
 
-    except:
+    except Exception as e:
+
+        print("Audio download failed:",e)
 
         return None,None
