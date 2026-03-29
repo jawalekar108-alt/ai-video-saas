@@ -11,7 +11,7 @@ def extract_video_id(url):
     if match:
         return match.group(1)
 
-    raise Exception("Invalid URL")
+    raise Exception("Invalid YouTube URL")
 
 
 
@@ -19,10 +19,16 @@ def get_youtube_transcript(url):
 
     video_id=extract_video_id(url)
 
-    transcript_list=YouTubeTranscriptApi.list_transcripts(video_id)
+    try:
+
+        transcript_list=YouTubeTranscriptApi.list_transcripts(video_id)
+
+    except:
+
+        raise Exception("No captions available")
 
 
-    # Try English first
+    # manual english
     try:
 
         transcript=transcript_list.find_transcript(['en'])
@@ -35,7 +41,7 @@ def get_youtube_transcript(url):
         pass
 
 
-    # Try auto English
+    # auto english
     try:
 
         transcript=transcript_list.find_generated_transcript(['en'])
@@ -48,7 +54,7 @@ def get_youtube_transcript(url):
         pass
 
 
-    # Try ANY language
+    # any language fallback
     try:
 
         for t in transcript_list:
@@ -61,4 +67,4 @@ def get_youtube_transcript(url):
         pass
 
 
-    raise Exception("No captions available")
+    raise Exception("Transcript unavailable")
