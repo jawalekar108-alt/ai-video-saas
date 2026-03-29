@@ -63,18 +63,17 @@ def download_audio(url):
         # avoid DRM formats
         'allow_unplayable_formats':False,
 
+        'http_headers':{
+        'User-Agent':'Mozilla/5.0'
+    },
+        
         # huge reliability improvement
         'extractor_args':{
 
             'youtube':{
 
-                'player_client':[
-
-                    'android',
-                    'web',
-                    'ios'
-
-                ]
+                'player_client':
+                ['web']
             }
         },
 
