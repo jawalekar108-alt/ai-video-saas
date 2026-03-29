@@ -4,32 +4,44 @@ from src.transcribe import transcribe_audio
 import os
 
 
+def clean_text(text):
+
+    text=text.replace("\n"," ")
+
+    while "  " in text:
+        text=text.replace("  "," ")
+
+    return text.strip()
+
+
+
 def get_transcript(url):
 
-    # STEP 1 — captions (primary method)
+    # STEP 1 — captions (PRIMARY METHOD)
     try:
 
         text=get_youtube_transcript(url)
 
         if text and len(text)>100:
 
-            print("Using YouTube captions")
+            print("Using captions")
 
-            return text
+            return clean_text(text)
 
     except Exception as e:
 
-        print("Captions unavailable:",e)
+        print("Captions failed:",e)
 
 
-    # STEP 2 — try audio (best effort only)
+
+    # STEP 2 — audio (ONLY attempt once)
     try:
 
         audio,video_id=download_audio(url)
 
         if audio:
 
-            print("Using audio transcription")
+            print("Trying audio transcription")
 
             transcript=transcribe_audio(audio)
 
@@ -40,23 +52,23 @@ def get_transcript(url):
 
             if transcript and len(transcript)>100:
 
-                return transcript
+                return clean_text(transcript)
 
     except Exception as e:
 
         print("Audio blocked:",e)
 
 
-    # STEP 3 — graceful failure (important UX)
 
-    raise Exception(
+    # STEP 3 — NEVER CRASH APP
+    return """Transcript unavailable.
 
-        "Could not process this video.\n\n"
-        "Try:\n"
-        "• Videos with captions enabled\n"
-        "• Educational videos\n"
-        "• Public lectures\n"
-        "• Avoid music videos\n"
-        "• Avoid Shorts"
+This video likely blocks AI extraction.
 
-    )
+Try:
+• Videos with captions
+• Educational content
+• Talks / podcasts
+
+Or upload transcript manually.
+"""
