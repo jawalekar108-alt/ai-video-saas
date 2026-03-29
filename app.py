@@ -118,6 +118,7 @@ if st.button("🚀 Analyze Video"):
 
         except Exception as e:
             st.error(str(e))
+            st.info("Try a different video or one with captions.")
             st.stop()
 
 
