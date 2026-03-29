@@ -1,10 +1,13 @@
 import os
-import glob
+import shutil
 
-def clean_temp():
 
-    files=glob.glob("temp/*.mp3")
+def cleanup():
 
-    for f in files:
+    temp="temp"
 
-        os.remove(f)
+    if os.path.exists(temp):
+
+        shutil.rmtree(temp)
+
+    os.makedirs(temp,exist_ok=True)
