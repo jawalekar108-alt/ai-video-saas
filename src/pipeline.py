@@ -4,6 +4,7 @@ from src.transcribe import transcribe_audio
 
 def get_transcript(url):
 
+    # Try captions first
     try:
 
         text=get_youtube_transcript(url)
@@ -12,10 +13,11 @@ def get_transcript(url):
 
             return text
 
-    except:
+    except Exception as e:
 
-        pass
+        print("Caption failed:",e)
 
+    # Try audio download
     try:
 
         audio,video_id=download_audio(url)
@@ -24,12 +26,20 @@ def get_transcript(url):
 
             transcript=transcribe_audio(audio)
 
-            if transcript:
+            if transcript and len(transcript)>100:
 
                 return transcript
 
-    except:
+    except Exception as e:
 
-        pass
+        print("Audio failed:",e)
 
-    raise Exception("Could not extract transcript (video may be protected)")
+    # Final fallback
+    raise Exception(
+        "This video cannot be processed.\n"
+        "Possible reasons:\n"
+        "- DRM protection\n"
+        "- Bot protection\n"
+        "- No captions available\n"
+        "- Private video"
+    )
