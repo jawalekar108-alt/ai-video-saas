@@ -30,65 +30,40 @@ def download_audio(url):
 
     ydl_opts={
 
-        'format':'bestaudio/best',
-
-        'outtmpl':output,
+        'format':'worstaudio/worst',
 
         'quiet':True,
 
         'noplaylist':True,
 
-        'retries':10,
+        'outtmpl':output,
 
-        'fragment_retries':10,
-
-        'socket_timeout':30,
-
-        'nocheckcertificate':True,
+        'retries':3,
 
         'ignoreerrors':True,
 
-        'allow_unplayable_formats':False,
-
-
-        # COOKIE FIX (MOST IMPORTANT)
-        'cookiefile':'cookies.txt',
-
-
-        # Browser simulation
-        'http_headers':{
-
-            'User-Agent':
-            'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
-
-            'Accept-Language':
-            'en-US,en;q=0.9'
-
-        },
-
-
-        # safest client currently
+        # safer client
         'extractor_args':{
 
             'youtube':{
 
-                'player_client':[
+                'player_client':['web']
 
-                    'web_creator',
-                    'web'
-
-                ]
             }
         },
 
+        # browser disguise
+        'http_headers':{
+
+            'User-Agent':'Mozilla/5.0'
+
+        },
 
         'postprocessors':[{
 
             'key':'FFmpegExtractAudio',
 
-            'preferredcodec':'mp3',
-
-            'preferredquality':'128'
+            'preferredcodec':'mp3'
 
         }]
 
@@ -110,9 +85,6 @@ def download_audio(url):
 
             return filename,video_id
 
-
-    except Exception as e:
-
-        print("Download failed:",e)
+    except:
 
         return None,None
