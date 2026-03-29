@@ -29,7 +29,7 @@ def download_audio(url):
 
     ydl_opts={
 
-        'format':'worstaudio',
+        'format':'bestaudio/best',
 
         'quiet':True,
 
@@ -37,7 +37,7 @@ def download_audio(url):
 
         'ignoreerrors':True,
 
-        'retries':2,
+        'retries':1,
 
         'extractor_args':{
 
@@ -51,7 +51,7 @@ def download_audio(url):
 
         'http_headers':{
 
-            'User-Agent':'Mozilla/5.0'
+            'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'
 
         }
 
