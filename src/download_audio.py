@@ -1,5 +1,4 @@
 import yt_dlp
-import os
 import re
 from pathlib import Path
 
@@ -30,51 +29,34 @@ def download_audio(url):
 
     ydl_opts={
 
-    'format':'bestaudio[ext=m4a]/bestaudio/best',
+        'format':'worstaudio',
 
-    'quiet':True,
+        'quiet':True,
 
-    'noplaylist':True,
+        'noplaylist':True,
 
-    'retries':5,
+        'ignoreerrors':True,
 
-    'nocheckcertificate':True,
+        'retries':2,
 
-    'ignoreerrors':True,
+        'extractor_args':{
 
-    'geo_bypass':True,
+            'youtube':{
 
-    'outtmpl':output,
+                'player_client':['web']
 
-    'extractor_args':{
+            }
 
-        'youtube':{
+        },
 
-            'player_client':['web'],
+        'http_headers':{
 
-            'skip':['dash','hls']
+            'User-Agent':'Mozilla/5.0'
 
         }
 
-    },
+    }
 
-    'http_headers':{
-
-        'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
-
-        'Accept-Language':'en-US,en'
-
-    },
-
-    'postprocessors':[{
-
-        'key':'FFmpegExtractAudio',
-
-        'preferredcodec':'mp3'
-
-    }]
-
-}
 
     try:
 
@@ -83,11 +65,10 @@ def download_audio(url):
             info=ydl.extract_info(url,download=True)
 
             if not info:
+
                 return None,None
 
             filename=ydl.prepare_filename(info)
-
-            filename=os.path.splitext(filename)[0]+".mp3"
 
             return filename,video_id
 
