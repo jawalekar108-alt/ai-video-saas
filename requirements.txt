@@ -5,5 +5,5 @@ groq
 fpdf2
 pydub
 ffmpeg-python
-google-generativeai
+google-genai
 tiktoken
