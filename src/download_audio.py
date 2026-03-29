@@ -42,7 +42,8 @@ def download_audio(url):
     ydl_opts={
 
         # safer audio selection
-        'format':'bestaudio/best',
+        
+        'format':'bestaudio[protocol=https]/bestaudio/best',
 
         'outtmpl':output,
 
