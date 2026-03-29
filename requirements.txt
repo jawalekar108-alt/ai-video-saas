@@ -8,3 +8,7 @@ openai-whisper
 ffmpeg-python
 google-genai
 tiktoken
+js2py
+nodejs-wheel
+
+
