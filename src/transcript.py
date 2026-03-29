@@ -1,8 +1,4 @@
 from src.download import get_youtube_transcript
-from src.download_audio import download_audio
-from src.transcribe import transcribe_audio
-import os
-
 
 
 def clean_text(text):
@@ -10,7 +6,6 @@ def clean_text(text):
     text=text.replace("\n"," ")
 
     while "  " in text:
-
         text=text.replace("  "," ")
 
     return text.strip()
@@ -19,12 +14,13 @@ def clean_text(text):
 
 def get_transcript(url):
 
-    # STEP 1 captions
     try:
 
         text=get_youtube_transcript(url)
 
         if text and len(text)>100:
+
+            print("Using captions")
 
             return clean_text(text)
 
@@ -33,28 +29,17 @@ def get_transcript(url):
         print("Captions failed:",e)
 
 
-    # STEP 2 audio attempt
-    try:
+    # NEVER attempt audio in cloud SaaS
 
-        audio,video_id=download_audio(url)
+    return """Transcript unavailable.
 
-        if audio:
+This video blocks transcript extraction.
 
-            transcript=transcribe_audio(audio)
+Try:
+• Videos with captions enabled
+• Educational videos
+• Podcasts
+• Lectures
 
-            try:
-                os.remove(audio)
-            except:
-                pass
-
-            if transcript:
-
-                return clean_text(transcript)
-
-    except Exception as e:
-
-        print("Audio skipped:",e)
-
-
-    # STEP 3 graceful fallback
-    return None
+This happens because some videos disable AI access.
+"""
