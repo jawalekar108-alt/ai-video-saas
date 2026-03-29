@@ -1,45 +1,52 @@
 import streamlit as st
+import os
 
 from src.transcript import get_transcript
 from src.analyzer import analyze
 from src.chat import ask_video
 from src.cache import load_cache, save_cache
 from src.export import export_pdf
+from src.cleanup import cleanup
 
 
-# ---------------- PAGE CONFIG ----------------
+# ---------------- PAGE ----------------
 
 st.set_page_config(
+
     page_title="AI Video Intelligence",
+
     page_icon="🎬",
+
     layout="wide"
+
 )
 
 st.title("🎬 AI Video Intelligence SaaS")
+
 st.write("Turn any YouTube video into smart study notes")
 
 
-# ---------------- SESSION STATE ----------------
+# ---------------- SESSION ----------------
 
 def init_state():
 
-    defaults = {
+    defaults={
 
-        "transcript": "",
-        "analysis": "",
-        "loaded": False,
-        "usage": 0,
-        "last_url": "",
-        "pro": False,
-        "processing": False
+        "transcript":"",
+        "analysis":"",
+        "loaded":False,
+        "usage":0,
+        "last_url":"",
+        "pro":False,
+        "processing":False
 
     }
 
-    for key,value in defaults.items():
+    for k,v in defaults.items():
 
-        if key not in st.session_state:
+        if k not in st.session_state:
 
-            st.session_state[key] = value
+            st.session_state[k]=v
 
 
 init_state()
@@ -47,9 +54,12 @@ init_state()
 
 # ---------------- INPUT ----------------
 
-url = st.text_input(
+url=st.text_input(
+
     "Enter YouTube URL",
+
     key="url_input"
+
 )
 
 if url:
@@ -63,17 +73,17 @@ if url:
         st.warning("Enter valid YouTube URL")
 
 
-# ---------------- RESET WHEN URL CHANGES ----------------
+# ---------------- RESET ----------------
 
-if url != st.session_state.last_url:
+if url!=st.session_state.last_url:
 
-    st.session_state.transcript = ""
+    st.session_state.transcript=""
 
-    st.session_state.analysis = ""
+    st.session_state.analysis=""
 
-    st.session_state.loaded = False
+    st.session_state.loaded=False
 
-    st.session_state.last_url = url
+    st.session_state.last_url=url
 
 
 # ---------------- SIDEBAR ----------------
@@ -84,7 +94,7 @@ with st.sidebar:
 
     if st.session_state.pro:
 
-        st.success("Pro Plan Active")
+        st.success("Pro Active")
 
     else:
 
@@ -93,24 +103,29 @@ with st.sidebar:
         st.write("3 videos limit")
 
         st.write(
+
             f"{st.session_state.usage}/3 used"
+
         )
 
     st.divider()
 
-    password = st.text_input(
+    password=st.text_input(
+
         "Pro Access",
+
         type="password"
+
     )
 
-    if password == "pro123":
+    if password=="pro123":
 
-        st.session_state.pro = True
+        st.session_state.pro=True
 
         st.success("Pro unlocked")
 
 
-# ---------------- ANALYZE BUTTON ----------------
+# ---------------- ANALYZE ----------------
 
 if st.button("🚀 Analyze Video"):
 
@@ -118,16 +133,22 @@ if st.button("🚀 Analyze Video"):
 
         st.stop()
 
+
     if not url:
 
         st.warning("Enter URL")
 
         st.stop()
 
-    if not (
+
+    if not(
+
         "youtube.com" in url
+
         or
+
         "youtu.be" in url
+
     ):
 
         st.warning("Enter valid YouTube link")
@@ -139,70 +160,111 @@ if st.button("🚀 Analyze Video"):
 
     if not st.session_state.pro:
 
-        if st.session_state.usage >= 3:
+        if st.session_state.usage>=3:
 
             st.warning(
-                "Free limit reached. Upgrade to Pro."
+
+                "Free limit reached"
+
             )
 
             st.stop()
 
-        st.session_state.usage += 1
+        st.session_state.usage+=1
 
 
-    st.session_state.processing = True
+    st.session_state.processing=True
 
 
-    # CACHE CHECK
+# ---------------- CACHE ----------------
 
-    cache = load_cache(url)
+    cache=load_cache(url)
 
     if cache:
 
         st.success("⚡ Loaded from cache")
 
-        st.session_state.transcript = cache["transcript"]
+        st.session_state.transcript=cache["transcript"]
 
-        st.session_state.analysis = cache["analysis"]
+        st.session_state.analysis=cache["analysis"]
 
-        st.session_state.loaded = True
+        st.session_state.loaded=True
 
-        st.session_state.processing = False
+        st.session_state.processing=False
 
 
     else:
 
         try:
 
-            with st.spinner("Getting transcript..."):
+            cleanup()
 
-                transcript = get_transcript(url)
+            with st.spinner(
 
+                "Getting transcript..."
+
+            ):
+
+                transcript=get_transcript(url)
+
+
+# -------- FALLBACK --------
 
             if not transcript:
 
-                raise Exception(
-                    "Could not extract transcript"
+                st.warning(
+
+                    "Transcript unavailable"
                 )
 
+                uploaded=st.file_uploader(
 
-            if len(transcript) < 50:
+                    "Upload transcript manually",
+
+                    type=["txt"]
+
+                )
+
+                if uploaded:
+
+                    transcript=uploaded.read().decode()
+
+                else:
+
+                    st.session_state.processing=False
+
+                    st.stop()
+
+
+            if len(transcript)<50:
 
                 raise Exception(
+
                     "Transcript too short"
+
                 )
 
 
-            with st.spinner("Analyzing video..."):
+# -------- ANALYZE --------
 
-                analysis = analyze(transcript)
+            with st.spinner(
+
+                "Analyzing video..."
+
+            ):
+
+                analysis=analyze(
+
+                    transcript
+
+                )
 
 
-            st.session_state.transcript = transcript
+            st.session_state.transcript=transcript
 
-            st.session_state.analysis = analysis
+            st.session_state.analysis=analysis
 
-            st.session_state.loaded = True
+            st.session_state.loaded=True
 
 
             save_cache(
@@ -211,16 +273,20 @@ if st.button("🚀 Analyze Video"):
 
                 {
 
-                    "transcript": transcript,
+                    "transcript":transcript,
 
-                    "analysis": analysis
+                    "analysis":analysis
 
                 }
 
             )
 
 
-            st.success("✅ Analysis complete")
+            st.success(
+
+                "✅ Analysis complete"
+
+            )
 
 
         except Exception as e:
@@ -228,17 +294,20 @@ if st.button("🚀 Analyze Video"):
             st.error(str(e))
 
             st.info(
-                "Try another video with captions enabled."
+
+                "Try video with captions"
+
             )
 
-        st.session_state.processing = False
+
+        st.session_state.processing=False
 
 
 # ---------------- RESULTS ----------------
 
 if st.session_state.loaded:
 
-    tab1,tab2,tab3 = st.tabs([
+    tab1,tab2,tab3=st.tabs([
 
         "🧠 AI Analysis",
 
@@ -253,65 +322,58 @@ if st.session_state.loaded:
 
     with tab1:
 
-        st.subheader("AI Analysis")
+        st.subheader(
+
+            "AI Analysis"
+
+        )
 
         st.markdown(
+
             st.session_state.analysis
+
         )
 
 
-        col1,col2 = st.columns(2)
+        col1,col2=st.columns(2)
 
-
-# TXT DOWNLOAD
 
         with col1:
 
             st.download_button(
 
-                "⬇️ Download Notes (TXT)",
+                "⬇️ Download TXT",
 
                 st.session_state.analysis,
 
-                file_name="video_notes.txt"
+                file_name="notes.txt"
 
             )
 
 
-# PDF DOWNLOAD
-
         with col2:
 
-            if st.session_state.analysis:
+            pdf=export_pdf(
 
-                pdf = export_pdf(
+                "AI Video Notes",
 
-                    "AI Video Notes",
+                st.session_state.analysis
 
-                    st.session_state.analysis
+            )
+
+            if pdf:
+
+                st.download_button(
+
+                    "📄 Download PDF",
+
+                    data=pdf,
+
+                    file_name="notes.pdf",
+
+                    mime="application/pdf"
 
                 )
-
-
-                if pdf:
-
-                    st.download_button(
-
-                        "📄 Download Premium PDF",
-
-                        data=pdf,
-
-                        file_name="video_notes.pdf",
-
-                        mime="application/pdf"
-
-                    )
-
-                else:
-
-                    st.error(
-                        "PDF generation failed"
-                    )
 
 
 # -------- TAB 2 --------
@@ -319,11 +381,15 @@ if st.session_state.loaded:
     with tab2:
 
         st.subheader(
-            "Ask Questions About Video"
+
+            "Ask Questions"
+
         )
 
-        question = st.text_input(
+        question=st.text_input(
+
             "Ask question"
+
         )
 
 
@@ -332,16 +398,20 @@ if st.session_state.loaded:
             if not question:
 
                 st.warning(
+
                     "Enter question"
+
                 )
 
             else:
 
                 with st.spinner(
+
                     "Thinking..."
+
                 ):
 
-                    answer = ask_video(
+                    answer=ask_video(
 
                         question,
 
@@ -356,7 +426,11 @@ if st.session_state.loaded:
 
     with tab3:
 
-        st.subheader("Full Transcript")
+        st.subheader(
+
+            "Transcript"
+
+        )
 
 
         st.text_area(
@@ -372,7 +446,7 @@ if st.session_state.loaded:
 
         st.download_button(
 
-            "⬇️ Download Transcript",
+            "⬇️ Download",
 
             st.session_state.transcript,
 
