@@ -1,7 +1,8 @@
-import shutil
 import os
+import shutil
 
-def cleanup():
+
+def cleanup_temp():
 
     if os.path.exists("temp"):
 
