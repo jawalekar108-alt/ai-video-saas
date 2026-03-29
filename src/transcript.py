@@ -6,28 +6,33 @@ import os
 
 def get_transcript(url):
 
+    # STEP 1 — captions (primary method)
     try:
 
         text=get_youtube_transcript(url)
 
         if text and len(text)>100:
 
+            print("Using YouTube captions")
+
             return text
 
     except Exception as e:
 
-        print("Caption failed:",e)
+        print("Captions unavailable:",e)
 
 
+    # STEP 2 — try audio (best effort only)
     try:
 
         audio,video_id=download_audio(url)
 
         if audio:
 
+            print("Using audio transcription")
+
             transcript=transcribe_audio(audio)
 
-            # cleanup temp file
             try:
                 os.remove(audio)
             except:
@@ -39,16 +44,19 @@ def get_transcript(url):
 
     except Exception as e:
 
-        print("Audio failed:",e)
+        print("Audio blocked:",e)
 
+
+    # STEP 3 — graceful failure (important UX)
 
     raise Exception(
 
-        "This video cannot be processed.\n"
-        "Possible reasons:\n"
-        "- DRM protection\n"
-        "- Bot protection\n"
-        "- No captions\n"
-        "- Private video"
+        "Could not process this video.\n\n"
+        "Try:\n"
+        "• Videos with captions enabled\n"
+        "• Educational videos\n"
+        "• Public lectures\n"
+        "• Avoid music videos\n"
+        "• Avoid Shorts"
 
     )
