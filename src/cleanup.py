@@ -4,10 +4,16 @@ import shutil
 
 def cleanup():
 
-    temp="temp"
+    temp_dir="temp"
 
-    if os.path.exists(temp):
+    try:
 
-        shutil.rmtree(temp)
+        if os.path.exists(temp_dir):
 
-    os.makedirs(temp,exist_ok=True)
+            shutil.rmtree(temp_dir)
+
+        os.makedirs(temp_dir,exist_ok=True)
+
+    except Exception as e:
+
+        print("Cleanup warning:",e)
