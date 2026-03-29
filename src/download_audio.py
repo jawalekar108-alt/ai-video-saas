@@ -142,7 +142,7 @@ def fallback_download(url):
 
             'youtube':{
 
-                'player_client':['android']
+                'player_client':['web']
 
             }
         },
