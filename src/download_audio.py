@@ -9,7 +9,7 @@ TEMP="temp"
 Path(TEMP).mkdir(exist_ok=True)
 
 
-# keep yt-dlp updated (important for youtube changes)
+# Keep yt-dlp fresh (YouTube changes constantly)
 try:
     subprocess.run(
         ["pip","install","-U","yt-dlp"],
@@ -32,6 +32,7 @@ def get_video_id(url):
     return "video"
 
 
+
 def download_audio(url):
 
     video_id=get_video_id(url)
@@ -39,10 +40,9 @@ def download_audio(url):
     output=f"{TEMP}/{video_id}.%(ext)s"
 
 
+    # MAIN CONFIG (stable 2026)
     ydl_opts={
 
-        # safer audio selection
-        
         'format':'bestaudio[protocol=https]/bestaudio/best',
 
         'outtmpl':output,
@@ -51,37 +51,49 @@ def download_audio(url):
 
         'noplaylist':True,
 
-        'nocheckcertificate':True,
-
-        'ignoreerrors':True,
-
         'retries':10,
 
         'fragment_retries':10,
 
         'socket_timeout':30,
 
-        # avoid DRM formats
+        'ignoreerrors':True,
+
+        'nocheckcertificate':True,
+
         'allow_unplayable_formats':False,
 
+
+        # IMPORTANT → looks like real browser
         'http_headers':{
-        'User-Agent':'Mozilla/5.0'
-    },
-        
-        # huge reliability improvement
+
+            'User-Agent':
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+
+            'Accept-Language':
+            'en-US,en;q=0.9'
+
+        },
+
+
+        # IMPORTANT → only stable clients
         'extractor_args':{
 
             'youtube':{
 
-                'player_client':
-                ['web']
+                'player_client':[
+
+                    'web',
+                    'mweb'
+
+                ]
             }
         },
 
-        # sometimes fixes cloud networking bugs
+
         'source_address':'0.0.0.0',
 
-        # convert to mp3
+
         'postprocessors':[{
 
             'key':'FFmpegExtractAudio',
@@ -102,6 +114,7 @@ def download_audio(url):
             info=ydl.extract_info(url,download=True)
 
             if not info:
+
                 return fallback_download(url)
 
             filename=ydl.prepare_filename(info)
@@ -111,16 +124,13 @@ def download_audio(url):
             return filename,video_id
 
 
-    except yt_dlp.utils.DownloadError:
-
-        return fallback_download(url)
-
     except Exception:
 
         return fallback_download(url)
 
 
 
+# FALLBACK METHOD
 def fallback_download(url):
 
     video_id=get_video_id(url)
@@ -130,13 +140,24 @@ def fallback_download(url):
 
     fallback_opts={
 
-        'format':'best',
+        'format':'worstaudio/worst',
 
         'outtmpl':output,
 
         'quiet':True,
 
         'noplaylist':True,
+
+        'ignoreerrors':True,
+
+
+        'http_headers':{
+
+            'User-Agent':
+            'Mozilla/5.0'
+
+        },
+
 
         'extractor_args':{
 
@@ -147,13 +168,14 @@ def fallback_download(url):
             }
         },
 
+
         'postprocessors':[{
 
             'key':'FFmpegExtractAudio',
 
             'preferredcodec':'mp3',
 
-            'preferredquality':'128'
+            'preferredquality':'96'
 
         }]
 
