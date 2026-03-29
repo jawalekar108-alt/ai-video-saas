@@ -30,45 +30,51 @@ def download_audio(url):
 
     ydl_opts={
 
-        'format':'worstaudio/worst',
+    'format':'bestaudio[ext=m4a]/bestaudio/best',
 
-        'quiet':True,
+    'quiet':True,
 
-        'noplaylist':True,
+    'noplaylist':True,
 
-        'outtmpl':output,
+    'retries':5,
 
-        'retries':3,
+    'nocheckcertificate':True,
 
-        'ignoreerrors':True,
+    'ignoreerrors':True,
 
-        # safer client
-        'extractor_args':{
+    'geo_bypass':True,
 
-            'youtube':{
+    'outtmpl':output,
 
-                'player_client':['web']
+    'extractor_args':{
 
-            }
-        },
+        'youtube':{
 
-        # browser disguise
-        'http_headers':{
+            'player_client':['web'],
 
-            'User-Agent':'Mozilla/5.0'
+            'skip':['dash','hls']
 
-        },
+        }
 
-        'postprocessors':[{
+    },
 
-            'key':'FFmpegExtractAudio',
+    'http_headers':{
 
-            'preferredcodec':'mp3'
+        'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
 
-        }]
+        'Accept-Language':'en-US,en'
 
-    }
+    },
 
+    'postprocessors':[{
+
+        'key':'FFmpegExtractAudio',
+
+        'preferredcodec':'mp3'
+
+    }]
+
+}
 
     try:
 
