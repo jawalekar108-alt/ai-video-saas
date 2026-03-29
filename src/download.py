@@ -8,7 +8,6 @@ def get_video_id(url):
     match=re.search(regex,url)
 
     if not match:
-
         raise Exception("Invalid URL")
 
     return match.group(1)
@@ -23,11 +22,9 @@ def get_youtube_transcript(url):
         transcript_list=YouTubeTranscriptApi.list_transcripts(video_id)
 
         try:
-
             transcript=transcript_list.find_transcript(['en'])
 
         except:
-
             transcript=transcript_list.find_generated_transcript(['en'])
 
         data=transcript.fetch()
@@ -44,6 +41,5 @@ def get_youtube_transcript(url):
 
         return text
 
-    except:
-
+    except Exception:
         raise Exception("No captions available")
