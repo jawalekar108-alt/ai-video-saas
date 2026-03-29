@@ -1,50 +1,33 @@
-from google import genai
+import google.generativeai as genai
 from config import GEMINI_API_KEY
 
-client = genai.Client(api_key=GEMINI_API_KEY)
+genai.configure(api_key=GEMINI_API_KEY)
 
 def gemini_summary(text):
 
-    text=text[:8000]
+    try:
 
-    prompt=f"""
+        model=genai.GenerativeModel("gemini-1.5-flash")
 
-Analyze transcript and create:
+        prompt=f"""
+
+Create:
 
 SUMMARY
 KEY POINTS
 ACTION STEPS
+IMPORTANT IDEAS
 
-{text}
-
-"""
-
-    response=client.models.generate_content(
-
-    model="gemini-1.5-flash",
-
-    contents=prompt
-
-    )
-
-    return response.text
-
-def gemini_summary(text):
-
-    text=text[:8000]
-
-    prompt=f"""
-
-Analyze transcript and create:
-
-SUMMARY
-KEY POINTS
-ACTION ITEMS
-
-{text}
+{text[:8000]}
 
 """
 
-    res=model.generate_content(prompt)
+        response=model.generate_content(prompt)
 
-    return res.text
+        return response.text
+
+    except Exception as e:
+
+        print("Gemini failed:",e)
+
+        raise Exception("Gemini failed")
