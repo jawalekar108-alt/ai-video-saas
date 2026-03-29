@@ -6,26 +6,30 @@ def get_transcript(url):
 
     try:
 
-        print("Trying captions")
-
         text=get_youtube_transcript(url)
 
         if text and len(text)>100:
 
             return text
 
-    except Exception as e:
+    except:
 
-        print("Caption failed:",e)
+        pass
 
-    print("Using AI transcription")
+    try:
 
-    audio,video_id=download_audio(url)
+        audio,video_id=download_audio(url)
 
-    transcript=transcribe_audio(audio)
+        if audio:
 
-    if not transcript or len(transcript)<100:
+            transcript=transcribe_audio(audio)
 
-        raise Exception("Transcription failed")
+            if transcript:
 
-    return transcript
+                return transcript
+
+    except:
+
+        pass
+
+    raise Exception("Could not extract transcript (video may be protected)")
