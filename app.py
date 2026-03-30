@@ -156,17 +156,13 @@ if st.button("🚀 Analyze Video"):
         st.stop()
 
 
-    # FREE LIMIT
+# FREE LIMIT
 
     if not st.session_state.pro:
 
         if st.session_state.usage>=3:
 
-            st.warning(
-
-                "Free limit reached"
-
-            )
+            st.warning("Free limit reached")
 
             st.stop()
 
@@ -199,23 +195,19 @@ if st.button("🚀 Analyze Video"):
 
             cleanup()
 
-            with st.spinner(
 
-                "Getting transcript..."
+# -------- GET TRANSCRIPT --------
 
-            ):
+            with st.spinner("Getting transcript..."):
 
                 transcript=get_transcript(url)
 
 
-# -------- FALLBACK --------
+# -------- VALIDATE --------
 
             if not transcript:
 
-                st.warning(
-
-                    "Transcript unavailable"
-                )
+                st.warning("Transcript unavailable")
 
                 uploaded=st.file_uploader(
 
@@ -236,29 +228,37 @@ if st.button("🚀 Analyze Video"):
                     st.stop()
 
 
-            if len(transcript)<50:
+# Prevent garbage analysis
 
-                raise Exception(
+            if len(transcript)<100:
 
-                    "Transcript too short"
+                st.error("Transcript too short")
 
-                )
+                st.session_state.processing=False
+
+                st.stop()
+
+
+# Prevent token overflow (IMPORTANT)
+
+            transcript=transcript[:15000]
 
 
 # -------- ANALYZE --------
 
-            with st.spinner(
+            with st.spinner("Analyzing video..."):
 
-                "Analyzing video..."
+                analysis=analyze(transcript)
 
-            ):
 
-                analysis=analyze(
+# Validate AI output
 
-                    transcript
+            if not analysis:
 
-                )
+                analysis="Analysis failed"
 
+
+# -------- SAVE --------
 
             st.session_state.transcript=transcript
 
@@ -282,22 +282,14 @@ if st.button("🚀 Analyze Video"):
             )
 
 
-            st.success(
-
-                "✅ Analysis complete"
-
-            )
+            st.success("✅ Analysis complete")
 
 
         except Exception as e:
 
-            st.error(str(e))
+            st.error("Processing failed")
 
-            st.info(
-
-                "Try video with captions"
-
-            )
+            st.info("Try another video with captions")
 
 
         st.session_state.processing=False
@@ -322,11 +314,7 @@ if st.session_state.loaded:
 
     with tab1:
 
-        st.subheader(
-
-            "AI Analysis"
-
-        )
+        st.subheader("AI Analysis")
 
         st.markdown(
 
@@ -380,36 +368,20 @@ if st.session_state.loaded:
 
     with tab2:
 
-        st.subheader(
+        st.subheader("Ask Questions")
 
-            "Ask Questions"
-
-        )
-
-        question=st.text_input(
-
-            "Ask question"
-
-        )
+        question=st.text_input("Ask question")
 
 
         if st.button("Ask"):
 
             if not question:
 
-                st.warning(
-
-                    "Enter question"
-
-                )
+                st.warning("Enter question")
 
             else:
 
-                with st.spinner(
-
-                    "Thinking..."
-
-                ):
+                with st.spinner("Thinking..."):
 
                     answer=ask_video(
 
@@ -426,11 +398,7 @@ if st.session_state.loaded:
 
     with tab3:
 
-        st.subheader(
-
-            "Transcript"
-
-        )
+        st.subheader("Transcript")
 
 
         st.text_area(
