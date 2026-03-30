@@ -10,5 +10,5 @@ google-genai
 tiktoken
 js2py
 nodejs-wheel
-
+openai>=1.0.0
 
