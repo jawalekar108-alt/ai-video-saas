@@ -45,53 +45,13 @@ def get_transcript(url):
 
     try:
 
-        api=YouTubeTranscriptApi()
+        # THIS METHOD IS STABLE ACROSS VERSIONS
+        data=YouTubeTranscriptApi.get_transcript(video_id)
 
 
-        transcripts=api.list(video_id)
+        text=" ".join([x['text'] for x in data])
 
-
-# Try English captions
-
-        try:
-
-            t=transcripts.find_transcript(['en'])
-
-            data=t.fetch()
-
-            text=" ".join([x.text for x in data])
-
-            return clean(text)
-
-        except:
-            pass
-
-
-# Try auto captions
-
-        try:
-
-            t=transcripts.find_generated_transcript(['en'])
-
-            data=t.fetch()
-
-            text=" ".join([x.text for x in data])
-
-            return clean(text)
-
-        except:
-            pass
-
-
-# Try any language
-
-        for t in transcripts:
-
-            data=t.fetch()
-
-            text=" ".join([x.text for x in data])
-
-            return clean(text)
+        return clean(text)
 
 
     except Exception as e:
