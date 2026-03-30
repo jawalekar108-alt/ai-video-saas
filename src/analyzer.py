@@ -1,7 +1,6 @@
 
+import os
 from openai import OpenAI
-
-client=OpenAI()
 
 
 def analyze(text):
@@ -11,14 +10,27 @@ def analyze(text):
         return "Transcript unavailable"
 
 
+    # Prevent token overflow
     text=text[:12000]
 
 
-    prompt=f"""
+    api_key=os.getenv("OPENAI_API_KEY")
+
+    if not api_key:
+
+        return "OpenAI API key missing"
+
+
+    try:
+
+        client=OpenAI(api_key=api_key)
+
+
+        prompt=f"""
 
 Create structured study notes from this video transcript.
 
-Format:
+Format exactly like this:
 
 SUMMARY:
 (short paragraph)
@@ -42,15 +54,16 @@ Transcript:
 """
 
 
-    try:
-
         response=client.chat.completions.create(
 
             model="gpt-4.1-mini",
 
             messages=[
 
-                {"role":"user","content":prompt}
+                {
+                    "role":"user",
+                    "content":prompt
+                }
 
             ],
 
@@ -64,8 +77,7 @@ Transcript:
 
     except Exception as e:
 
-        return "AI analysis failed"
-
+        return f"AI analysis failed: {str(e)}"
 
 
 
