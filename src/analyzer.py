@@ -1,39 +1,70 @@
-from src.ai_router import generate_summary
+
+from openai import OpenAI
+
+client=OpenAI()
+
 
 def analyze(text):
 
-    if not text or len(text) < 50:
+    if not text:
 
-        return "Transcript too short to analyze."
+        return "Transcript unavailable"
 
-    text=text[:10000]
+
+    text=text[:12000]
+
+
+    prompt=f"""
+
+Create structured study notes from this video transcript.
+
+Format:
+
+SUMMARY:
+(short paragraph)
+
+KEY POINTS:
+• point
+• point
+• point
+
+IMPORTANT IDEAS:
+• idea
+• idea
+
+ACTIONABLE TAKEAWAYS:
+• takeaway
+• takeaway
+
+Transcript:
+{text}
+
+"""
+
 
     try:
 
-        result=generate_summary(text)
+        response=client.chat.completions.create(
 
-        if not result:
+            model="gpt-4.1-mini",
 
-            return "Analysis could not be generated."
+            messages=[
 
-        return result
+                {"role":"user","content":prompt}
+
+            ],
+
+            temperature=0.3
+
+        )
+
+
+        return response.choices[0].message.content
+
 
     except Exception as e:
 
-        print("Analysis error:",e)
-
-        # final safety fallback
-        return text[:1500]
-
-
-
-
-
-
-
-
-
-
+        return "AI analysis failed"
 
 
 
