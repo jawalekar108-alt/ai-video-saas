@@ -1,5 +1,5 @@
-from youtube_transcript_api import YouTubeTranscriptApi
 import re
+from youtube_transcript_api import YouTubeTranscriptApi
 
 
 def extract_video_id(url):
@@ -45,17 +45,21 @@ def get_transcript(url):
 
     try:
 
-        transcripts=YouTubeTranscriptApi.list_transcripts(video_id)
+        api=YouTubeTranscriptApi()
 
 
-        # English captions
+        transcripts=api.list(video_id)
+
+
+# Try English captions
+
         try:
 
             t=transcripts.find_transcript(['en'])
 
             data=t.fetch()
 
-            text=" ".join([x['text'] for x in data])
+            text=" ".join([x.text for x in data])
 
             return clean(text)
 
@@ -63,14 +67,15 @@ def get_transcript(url):
             pass
 
 
-        # Auto captions
+# Try auto captions
+
         try:
 
             t=transcripts.find_generated_transcript(['en'])
 
             data=t.fetch()
 
-            text=" ".join([x['text'] for x in data])
+            text=" ".join([x.text for x in data])
 
             return clean(text)
 
@@ -78,12 +83,13 @@ def get_transcript(url):
             pass
 
 
-        # Any language
+# Try any language
+
         for t in transcripts:
 
             data=t.fetch()
 
-            text=" ".join([x['text'] for x in data])
+            text=" ".join([x.text for x in data])
 
             return clean(text)
 
@@ -94,52 +100,3 @@ def get_transcript(url):
 
 
     return None
-
-
-
-# from src.download import get_youtube_transcript
-
-
-# def clean_text(text):
-
-#     text=text.replace("\n"," ")
-
-#     while "  " in text:
-#         text=text.replace("  "," ")
-
-#     return text.strip()
-
-
-
-# def get_transcript(url):
-
-#     try:
-
-#         text=get_youtube_transcript(url)
-
-#         if text and len(text)>100:
-
-#             print("Using captions")
-
-#             return clean_text(text)
-
-#     except Exception as e:
-
-#         print("Captions failed:",e)
-
-
-#     # NEVER attempt audio in cloud SaaS
-
-#     return """Transcript unavailable.
-
-# This video blocks transcript extraction.
-
-# Try:
-# • Videos with captions enabled
-# • Educational videos
-# • Podcasts
-# • Lectures
-
-# This happens because some videos disable AI access.
-# """
- 
