@@ -1,10 +1,8 @@
 streamlit
-yt-dlp>=2025.12.30
 youtube-transcript-api
 groq
 fpdf2
 pydub
-openai-whisper
 ffmpeg-python
 google-genai
 tiktoken
