@@ -1,12 +1,5 @@
-streamlit
-youtube-transcript-api
-groq
-fpdf2
-pydub
-ffmpeg-python
-google-genai
-tiktoken
-js2py
-nodejs-wheel
-openai>=1.0.0
+youtube-transcript-api==0.6.2
+openai==1.12.0
+streamlit==1.31.0
 
+fpdf2
