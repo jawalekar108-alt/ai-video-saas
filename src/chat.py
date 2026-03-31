@@ -1,52 +1,58 @@
+import os
 from groq import Groq
-from config import GROQ_API_KEY
 
-client=Groq(api_key=GROQ_API_KEY)
 
 def ask_video(question,transcript):
 
-    context=transcript[:8000]
+    api_key=os.getenv("GROQ_API_KEY")
 
-    response=client.chat.completions.create(
+    if not api_key:
+        return "Groq API key missing"
 
-    model="llama-3.1-8b-instant",
+    if not transcript:
+        return "Transcript missing"
 
-    temperature=0.3,
+    try:
 
-    max_tokens=500,
+        client=Groq(api_key=api_key)
 
-    messages=[
+        context=transcript[:8000]
 
-    {
+        response=client.chat.completions.create(
 
-    "role":"system",
+            model="llama-3.1-8b-instant",
 
-    "content":"Answer questions from transcript"
+            temperature=0.3,
 
-    },
+            max_tokens=500,
 
-    {
+            messages=[
 
-    "role":"user",
+                {
+                    "role":"system",
+                    "content":"Answer questions from transcript"
+                },
 
-    "content":
+                {
+                    "role":"user",
 
-    f"""
+                    "content":f"""
 
 Transcript:
-
 {context}
 
 Question:
-
 {question}
 
 """
+                }
 
-    }
+            ]
 
-    ]
+        )
 
-    )
+        return response.choices[0].message.content
 
-    return response.choices[0].message.content
+    except Exception as e:
+
+        return f"Question failed: {str(e)}"
