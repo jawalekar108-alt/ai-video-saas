@@ -1,6 +1,9 @@
 import streamlit as st
 import os
 
+from dotenv import load_dotenv
+
+
 from src.transcript import get_transcript
 from src.analyzer import analyze
 from src.chat import ask_video
@@ -8,6 +11,7 @@ from src.cache import load_cache, save_cache
 from src.export import export_pdf
 from src.cleanup import cleanup
 
+load_dotenv()
 
 # ---------------- PAGE ----------------
 
