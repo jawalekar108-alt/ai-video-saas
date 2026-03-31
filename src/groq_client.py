@@ -1,48 +1,66 @@
-from groq import Groq
-from config import GROQ_API_KEY
+import os
 
-client=Groq(api_key=GROQ_API_KEY)
+from groq import Groq
+
 
 def groq_summary(text):
 
-    text=text[:8000]
+    api_key=os.getenv("GROQ_API_KEY")
 
-    res=client.chat.completions.create(
+    if not api_key:
+        return "Groq API key missing"
 
-    model="llama-3.1-8b-instant",
+    if not text:
+        return "No transcript available"
 
-    temperature=0.2,
+    try:
 
-    max_tokens=1200,
+        client=Groq(api_key=api_key)
 
-    messages=[
+        text=text[:8000]
 
-    {
+        res=client.chat.completions.create(
 
-    "role":"system",
+            model="llama-3.1-8b-instant",
 
-    "content":"""
+            temperature=0.2,
+
+            max_tokens=1200,
+
+            messages=[
+
+                {
+
+                "role":"system",
+
+                "content":"""
 
 Create:
 
 SUMMARY
+
 KEY POINTS
+
 ACTION ITEMS
 
 """
 
-    },
+                },
 
-    {
+                {
 
-    "role":"user",
+                "role":"user",
 
-    "content":text
+                "content":text
 
-    }
+                }
 
-    ]
+            ]
 
-    )
+        )
 
-    return res.choices[0].message.content
+        return res.choices[0].message.content
+
+    except Exception as e:
+
+        return f"Groq summary failed: {str(e)}"
