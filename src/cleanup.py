@@ -1,19 +1,24 @@
 import os
-import shutil
+
+import glob
 
 
 def cleanup():
 
-    temp_dir="temp"
+    files=
 
-    try:
+    glob.glob(
 
-        if os.path.exists(temp_dir):
+    "temp/*"
 
-            shutil.rmtree(temp_dir)
+    )
 
-        os.makedirs(temp_dir,exist_ok=True)
+    for f in files:
 
-    except Exception as e:
+        try:
 
-        print("Cleanup warning:",e)
+            os.remove(f)
+
+        except:
+
+            pass
