@@ -30,9 +30,7 @@ if st.button("Analyze"):
 
     )
 
-    job_id=
-
-    res.json()["job_id"]
+   job_id = res.json()["job_id"]
 
     st.session_state.job_id=job_id
 
