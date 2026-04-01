@@ -1,22 +1,19 @@
+import os
+from groq import Groq
+
+client = Groq(api_key=os.getenv("GROQ_API_KEY"))
+
+
 def analyze(text):
+    prompt = f"""
+    Summarize this YouTube video clearly:
 
-    if not text:
+    {text[:4000]}
+    """
 
-        return "No content"
+    res = client.chat.completions.create(
+        model="llama3-70b-8192",
+        messages=[{"role": "user", "content": prompt}]
+    )
 
-    words=text.split()
-
-    summary=" ".join(words[:200])
-
-    notes=f"""
-
-KEY POINTS:
-
-{summary}
-
-VIDEO LENGTH WORDS:
-{len(words)}
-
-"""
-
-    return notes
+    return res.choices[0].message.content
