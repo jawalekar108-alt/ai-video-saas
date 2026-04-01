@@ -28,7 +28,7 @@ def extract_video_id(url):
     return None
 
 
-def captions(video_id):
+def get_captions(video_id):
 
     try:
 
@@ -45,11 +45,15 @@ def captions(video_id):
         return None
 
 
-# manual english
-
     try:
 
-        t=transcripts.find_transcript(['en'])
+        t=
+
+        transcripts.find_transcript(
+
+        ['en']
+
+        )
 
         data=t.fetch()
 
@@ -63,8 +67,6 @@ def captions(video_id):
 
         pass
 
-
-# auto english
 
     try:
 
@@ -88,8 +90,6 @@ def captions(video_id):
 
         pass
 
-
-# any language fallback
 
     try:
 
@@ -122,42 +122,38 @@ def get_transcript(url):
         return None
 
 
-# LAYER 1 CAPTIONS
+# LAYER 1
 
-    text=captions(video_id)
+    text=
+
+    get_captions(video_id)
 
     if text and len(text)>100:
 
-        print("Using captions")
+        print("Captions used")
 
         return text
 
 
-# LAYER 2 AUDIO
+# LAYER 2
 
-    try:
+    print("No captions → using Whisper")
 
-        print("Downloading audio")
+    audio=
 
-        audio=
+    download_audio(url)
 
-        download_audio(url)
+    if audio:
 
-        if audio:
+        text=
 
-            print("Transcribing audio")
+        transcribe_audio(audio)
 
-            text=
+        if text:
 
-            transcribe_audio(audio)
+            return text
 
-            if text:
 
-                return text
-
-    except Exception as e:
-
-        print("Audio fallback failed",e)
-
+# FINAL FAIL SAFE
 
     return None
