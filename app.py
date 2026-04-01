@@ -2,13 +2,13 @@ import streamlit as st
 import threading
 import uuid
 import time
+import re
 
 from src.transcript_engine import get_transcript
 from src.analyzer import analyze
 
 
 # ---------------- SAFE GLOBAL STORE ----------------
-# (Thread-safe alternative to session_state)
 jobs_store = {}
 
 
@@ -20,23 +20,34 @@ if "job_id" not in st.session_state:
     st.session_state.job_id = None
 
 
+# ---------------- HELPER: THUMBNAIL ----------------
+def get_youtube_thumbnail(url):
+    match = re.search(r"(?:v=|youtu\.be/)([^&]+)", url)
+    if match:
+        video_id = match.group(1)
+        return f"https://img.youtube.com/vi/{video_id}/0.jpg"
+    return None
+
+
 # ---------------- BACKGROUND PROCESS ----------------
 def process(job_id, url):
     try:
-        # update stage
         jobs_store[job_id]["stage"] = "Getting transcript"
 
         transcript = get_transcript(url)
 
         if not transcript:
-            jobs_store[job_id]["status"] = "failed"
+            jobs_store[job_id] = {
+                "status": "failed",
+                "stage": "Transcript Error",
+                "error": "Transcript not found or disabled for this video"
+            }
             return
 
         jobs_store[job_id]["stage"] = "Analyzing"
 
         notes = analyze(transcript)
 
-        # final result
         jobs_store[job_id] = {
             "status": "done",
             "analysis": notes,
@@ -58,9 +69,21 @@ st.set_page_config(
     page_icon="🎬"
 )
 
-st.title("AI Video Intelligence")
+st.title("🎬 AI Video Intelligence")
 
-url = st.text_input("YouTube URL")
+url = st.text_input("Paste YouTube URL")
+
+
+# 🎬 VIDEO PREVIEW
+if url:
+    thumb = get_youtube_thumbnail(url)
+    if thumb:
+        st.image(thumb, caption="Preview", use_container_width=True)
+
+    try:
+        st.video(url)
+    except:
+        st.warning("Invalid YouTube URL")
 
 
 # ---------------- START JOB ----------------
@@ -70,7 +93,6 @@ if st.button("Analyze"):
     else:
         job_id = str(uuid.uuid4())
 
-        # store in BOTH places
         job_data = {
             "status": "processing",
             "stage": "Starting"
@@ -79,13 +101,11 @@ if st.button("Analyze"):
         st.session_state.jobs[job_id] = job_data
         jobs_store[job_id] = job_data
 
-        # start thread
-        thread = threading.Thread(
+        threading.Thread(
             target=process,
             args=(job_id, url),
             daemon=True
-        )
-        thread.start()
+        ).start()
 
         st.session_state.job_id = job_id
 
@@ -101,20 +121,20 @@ if st.session_state.job_id:
     job = jobs_store[job_id]
 
     if job["status"] == "processing":
-        st.info(job["stage"])
+        st.info(f"⏳ {job['stage']}...")
         time.sleep(2)
         st.rerun()
 
     elif job["status"] == "done":
-        st.success("Analysis complete")
+        st.success("✅ Analysis complete")
 
-        st.subheader("AI Notes")
+        st.subheader("🧠 AI Notes")
         st.write(job["analysis"])
 
-        with st.expander("Transcript"):
+        with st.expander("📜 Transcript"):
             st.write(job["transcript"])
 
     elif job["status"] == "failed":
-        st.error("Processing failed")
+        st.error("❌ Processing failed")
         if "error" in job:
             st.code(job["error"])
