@@ -1,11 +1,23 @@
-import os
-import shutil
+import re
 
+def get_video_id(url):
 
-def cleanup_temp():
+    patterns = [
 
-    if os.path.exists("temp"):
+        r"v=([^&]+)",
 
-        shutil.rmtree("temp")
+        r"youtu.be/([^?]+)",
 
-    os.makedirs("temp",exist_ok=True)
+        r"shorts/([^?]+)"
+
+    ]
+
+    for p in patterns:
+
+        match=re.search(p,url)
+
+        if match:
+
+            return match.group(1)
+
+    return None
