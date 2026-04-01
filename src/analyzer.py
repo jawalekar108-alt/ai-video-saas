@@ -1,60 +1,59 @@
-import os
 from openai import OpenAI
+
+from config import OPENAI_API_KEY
+
+
+client=
+
+OpenAI(api_key=
+
+OPENAI_API_KEY)
 
 
 def analyze(text):
 
     if not text:
+
         return "Transcript unavailable"
 
     text=text[:12000]
 
-    api_key=os.getenv("OPENAI_API_KEY")
-
-    if not api_key:
-        return "OpenAI API key missing"
-
     try:
 
-        client=OpenAI()
+        response=
 
-        prompt=f"""
-Create structured study notes from this video transcript.
+        client.chat.completions.create(
 
-Format exactly like this:
+        model="gpt-4.1-mini",
 
-SUMMARY:
-(short paragraph)
+        temperature=0.3,
 
-KEY POINTS:
-• point
-• point
-• point
+        messages=[
 
-IMPORTANT IDEAS:
-• idea
-• idea
+        {
 
-ACTIONABLE TAKEAWAYS:
-• takeaway
-• takeaway
+        "role":"user",
+
+        "content":
+
+        f"""
+
+Create structured study notes.
+
+SUMMARY
+KEY POINTS
+IMPORTANT IDEAS
+ACTIONABLE TAKEAWAYS
 
 Transcript:
+
 {text}
+
 """
 
-        response=client.chat.completions.create(
+        }
 
-            model="gpt-4.1-mini",
-
-            messages=[
-                {
-                    "role":"user",
-                    "content":prompt
-                }
-            ],
-
-            temperature=0.3
+        ]
 
         )
 
@@ -62,4 +61,4 @@ Transcript:
 
     except Exception as e:
 
-        return f"AI analysis failed: {str(e)}"
+        return str(e)
