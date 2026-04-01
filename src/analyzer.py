@@ -1,64 +1,59 @@
-from openai import OpenAI
+from groq import Groq
 
-from config import OPENAI_API_KEY
+import os
 
+client = Groq(
 
-client=
+api_key=os.getenv(
 
-OpenAI(api_key=
+"GROQ_API_KEY"
 
-OPENAI_API_KEY)
-
+))
 
 def analyze(text):
 
-    if not text:
-
-        return "Transcript unavailable"
-
     text=text[:12000]
 
-    try:
+    res=client.chat.completions.create(
 
-        response=
+    model="llama-3.1-8b-instant",
 
-        client.chat.completions.create(
+    temperature=0.2,
 
-        model="gpt-4.1-mini",
+    max_tokens=1200,
 
-        temperature=0.3,
+    messages=[
 
-        messages=[
+    {
 
-        {
+    "role":"system",
 
-        "role":"user",
+    "content":"""
 
-        "content":
-
-        f"""
-
-Create structured study notes.
+Create:
 
 SUMMARY
+
 KEY POINTS
+
 IMPORTANT IDEAS
-ACTIONABLE TAKEAWAYS
 
-Transcript:
-
-{text}
+ACTION ITEMS
 
 """
 
-        }
+    },
 
-        ]
+    {
 
-        )
+    "role":"user",
 
-        return response.choices[0].message.content
+    "content":text
 
-    except Exception as e:
+    }
 
-        return str(e)
+    ]
+
+    )
+
+    return res.choices[0].message.content
