@@ -1,20 +1,62 @@
 import streamlit as st
-import requests
+
+import threading
+
+import uuid
+
 import time
 
-API = "http://localhost:8000"
+from src.transcript_engine import get_transcript
+
+from src.analyzer import analyze
+
+
+jobs={}
+
+
+def process(job_id,url):
+
+    jobs[job_id]["stage"]="Getting transcript"
+
+    transcript=get_transcript(url)
+
+    if not transcript:
+
+        jobs[job_id]["status"]="failed"
+
+        return
+
+    jobs[job_id]["stage"]="Analyzing"
+
+    notes=analyze(transcript)
+
+    jobs[job_id]={
+
+        "status":"done",
+
+        "analysis":notes,
+
+        "transcript":transcript,
+
+        "stage":"Complete"
+
+    }
+
 
 st.set_page_config(
-    page_title="AI Video Intelligence",
-    page_icon="🎬",
-    layout="wide"
+
+page_title="AI Video Intelligence",
+
+page_icon="🎬"
+
 )
 
-st.title("🎬 AI Video Intelligence")
+st.title("AI Video Intelligence")
 
-url = st.text_input("Enter YouTube URL")
+url=st.text_input("YouTube URL")
 
-if st.button("Analyze Video"):
+
+if st.button("Analyze"):
 
     if not url:
 
@@ -22,54 +64,60 @@ if st.button("Analyze Video"):
 
     else:
 
-        response = requests.get(
+        job_id=str(uuid.uuid4())
 
-            f"{API}/process",
+        jobs[job_id]={
 
-            params={"url": url}
+            "status":"processing",
+
+            "stage":"Starting"
+
+        }
+
+        thread=threading.Thread(
+
+            target=process,
+
+            args=(job_id,url)
 
         )
 
-        data = response.json()
+        thread.start()
 
-        job_id = data["job_id"]
+        st.session_state.job_id=job_id
 
-        st.session_state["job_id"] = job_id
 
 
 if "job_id" in st.session_state:
 
-    job_id = st.session_state["job_id"]
+    job_id=st.session_state.job_id
 
-    status_response = requests.get(
-
-        f"{API}/status",
-
-        params={"job_id": job_id}
-
-    )
-
-    status = status_response.json()
+    job=jobs[job_id]
 
 
-    if status["status"] == "processing":
+    if job["status"]=="processing":
 
-        st.info("Processing video...")
+        st.info(job["stage"])
 
         time.sleep(2)
 
         st.rerun()
 
 
-    elif status["status"] == "done":
+    elif job["status"]=="done":
 
-        st.success("Analysis complete")
+        st.success("Done")
 
         st.subheader("AI Notes")
 
-        st.write(status["result"]["analysis"])
+        st.write(job["analysis"])
 
 
-    elif status["status"] == "failed":
+        with st.expander("Transcript"):
 
-        st.error("Processing failed")
+            st.write(job["transcript"])
+
+
+    elif job["status"]=="failed":
+
+        st.error("Failed to process video")
