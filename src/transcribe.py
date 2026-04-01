@@ -1,31 +1,43 @@
 import os
-from groq import Groq
-from config import GROQ_API_KEY
 
-client = Groq(api_key=GROQ_API_KEY)
+from openai import OpenAI
+
+from config import OPENAI_API_KEY
+
+
+client=
+
+OpenAI(api_key=
+
+OPENAI_API_KEY)
+
 
 def transcribe_audio(file):
 
     if not os.path.exists(file):
 
-        raise Exception("Audio file missing")
+        return None
 
     try:
 
-        with open(file,"rb") as audio:
+        audio=open(file,"rb")
 
-            res = client.audio.transcriptions.create(
+        transcript=
 
-                file=audio,
+        client.audio.transcriptions.create(
 
-                model="whisper-large-v3"
+        model=
 
-            )
+        "gpt-4o-mini-transcribe",
 
-        return res.text
+        file=audio
+
+        )
+
+        return transcript.text
 
     except Exception as e:
 
-        print("Transcription error:",e)
+        print("Transcription failed",e)
 
-        raise Exception("Transcription failed")
+        return None
