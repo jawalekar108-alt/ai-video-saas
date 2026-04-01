@@ -1,9 +1,11 @@
 streamlit
-openai
+fastapi
+uvicorn
 groq
 python-dotenv
 youtube-transcript-api
 yt-dlp
-fpdf
 openai-whisper
 torch
+requests
+fpdf
