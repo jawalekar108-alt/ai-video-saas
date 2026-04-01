@@ -2,7 +2,6 @@ import streamlit as st
 import threading
 import uuid
 import time
-import re
 
 from src.transcript_engine import get_transcript
 from src.analyzer import analyze
@@ -18,15 +17,6 @@ if "jobs" not in st.session_state:
 
 if "job_id" not in st.session_state:
     st.session_state.job_id = None
-
-
-# ---------------- HELPER: THUMBNAIL ----------------
-def get_youtube_thumbnail(url):
-    match = re.search(r"(?:v=|youtu\.be/)([^&]+)", url)
-    if match:
-        video_id = match.group(1)
-        return f"https://img.youtube.com/vi/{video_id}/0.jpg"
-    return None
 
 
 # ---------------- BACKGROUND PROCESS ----------------
@@ -74,12 +64,8 @@ st.title("🎬 AI Video Intelligence")
 url = st.text_input("Paste YouTube URL")
 
 
-# 🎬 VIDEO PREVIEW
+# 🎬 SINGLE VIDEO PREVIEW (FIXED)
 if url:
-    thumb = get_youtube_thumbnail(url)
-    if thumb:
-        st.image(thumb, caption="Preview", use_container_width=True)
-
     try:
         st.video(url)
     except:
