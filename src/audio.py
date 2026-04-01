@@ -1,36 +1,26 @@
 import yt_dlp
 
-import os
-
 from pathlib import Path
-
 
 TEMP="temp"
 
-Path(TEMP).mkdir(
-
-exist_ok=True
-
-)
-
+Path(TEMP).mkdir(exist_ok=True)
 
 def download_audio(url):
 
     try:
 
-        output=
-
-        f"{TEMP}/audio.%(ext)s"
-
         ydl_opts={
 
-        'format':'bestaudio/best',
+        'format':'bestaudio',
 
-        'outtmpl':output,
+        'outtmpl':'temp/audio.%(ext)s',
 
         'quiet':True,
 
-        'noplaylist':True
+        'noplaylist':True,
+
+        'retries':3
 
         }
 
@@ -50,14 +40,10 @@ def download_audio(url):
 
             )
 
-            filename=
-
-            ydl.prepare_filename(info)
-
-            return filename
+            return ydl.prepare_filename(info)
 
     except Exception as e:
 
-        print("Download failed",e)
+        print("Audio fail:",e)
 
         return None
