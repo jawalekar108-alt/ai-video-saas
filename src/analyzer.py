@@ -1,59 +1,22 @@
-from groq import Groq
-
-import os
-
-client = Groq(
-
-api_key=os.getenv(
-
-"GROQ_API_KEY"
-
-))
-
 def analyze(text):
 
-    text=text[:12000]
+    if not text:
 
-    res=client.chat.completions.create(
+        return "No content"
 
-    model="llama-3.1-8b-instant",
+    words=text.split()
 
-    temperature=0.2,
+    summary=" ".join(words[:200])
 
-    max_tokens=1200,
+    notes=f"""
 
-    messages=[
+KEY POINTS:
 
-    {
+{summary}
 
-    "role":"system",
-
-    "content":"""
-
-Create:
-
-SUMMARY
-
-KEY POINTS
-
-IMPORTANT IDEAS
-
-ACTION ITEMS
+VIDEO LENGTH WORDS:
+{len(words)}
 
 """
 
-    },
-
-    {
-
-    "role":"user",
-
-    "content":text
-
-    }
-
-    ]
-
-    )
-
-    return res.choices[0].message.content
+    return notes
