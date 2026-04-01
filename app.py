@@ -4,7 +4,7 @@ import os
 from dotenv import load_dotenv
 
 
-from src.transcript import get_transcript
+from src.transcript_engine import get_transcript
 from src.analyzer import analyze
 from src.chat import ask_video
 from src.cache import load_cache, save_cache
