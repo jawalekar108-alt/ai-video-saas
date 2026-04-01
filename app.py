@@ -1,36 +1,37 @@
 import streamlit as st
-
 import threading
-
 import uuid
-
 import time
 
 from src.transcript_engine import get_transcript
-
 from src.analyzer import analyze
 
 
-jobs={}
+if "jobs" not in st.session_state:
+
+    st.session_state.jobs={}
+
 
 
 def process(job_id,url):
 
-    jobs[job_id]["stage"]="Getting transcript"
+    st.session_state.jobs[job_id]["stage"]="Getting transcript"
 
     transcript=get_transcript(url)
 
     if not transcript:
 
-        jobs[job_id]["status"]="failed"
+        st.session_state.jobs[job_id]["status"]="failed"
 
         return
 
-    jobs[job_id]["stage"]="Analyzing"
+
+    st.session_state.jobs[job_id]["stage"]="Analyzing"
 
     notes=analyze(transcript)
 
-    jobs[job_id]={
+
+    st.session_state.jobs[job_id]={
 
         "status":"done",
 
@@ -43,6 +44,7 @@ def process(job_id,url):
     }
 
 
+
 st.set_page_config(
 
 page_title="AI Video Intelligence",
@@ -52,6 +54,7 @@ page_icon="🎬"
 )
 
 st.title("AI Video Intelligence")
+
 
 url=st.text_input("YouTube URL")
 
@@ -66,7 +69,7 @@ if st.button("Analyze"):
 
         job_id=str(uuid.uuid4())
 
-        jobs[job_id]={
+        st.session_state.jobs[job_id]={
 
             "status":"processing",
 
@@ -78,7 +81,9 @@ if st.button("Analyze"):
 
             target=process,
 
-            args=(job_id,url)
+            args=(job_id,url),
+
+            daemon=True
 
         )
 
@@ -92,7 +97,14 @@ if "job_id" in st.session_state:
 
     job_id=st.session_state.job_id
 
-    job=jobs[job_id]
+
+    if job_id not in st.session_state.jobs:
+
+        st.error("Job lost. Retry.")
+        st.stop()
+
+
+    job=st.session_state.jobs[job_id]
 
 
     if job["status"]=="processing":
@@ -106,7 +118,7 @@ if "job_id" in st.session_state:
 
     elif job["status"]=="done":
 
-        st.success("Done")
+        st.success("Analysis complete")
 
         st.subheader("AI Notes")
 
@@ -120,4 +132,4 @@ if "job_id" in st.session_state:
 
     elif job["status"]=="failed":
 
-        st.error("Failed to process video")
+        st.error("Processing failed")
