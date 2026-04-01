@@ -1,62 +1,26 @@
-from fpdf import FPDF
-from datetime import datetime
-
-class PDF(FPDF):
-
-    def header(self):
-
-        self.set_font("Helvetica","B",14)
-
-        self.cell(0,10,"AI Video Intelligence Report",new_x="LMARGIN",new_y="NEXT",align="C")
-
-        self.ln(5)
-
-    def footer(self):
-
-        self.set_y(-15)
-
-        self.set_font("Helvetica",size=8)
-
-        self.cell(
-
-        0,
-
-        10,
-
-        f"Generated {datetime.now().strftime('%Y-%m-%d')} | Page {self.page_no()}",
-
-        align="C"
-
-        )
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
+from reportlab.lib.styles import getSampleStyleSheet
+from io import BytesIO
 
 
-def export_pdf(title,content):
+def export_pdf(summary, transcript):
+    buffer = BytesIO()
 
-    try:
+    doc = SimpleDocTemplate(buffer)
+    styles = getSampleStyleSheet()
 
-        pdf=PDF()
+    content = []
 
-        pdf.add_page()
+    content.append(Paragraph("<b>AI Summary</b>", styles["Heading2"]))
+    content.append(Spacer(1, 10))
+    content.append(Paragraph(summary, styles["BodyText"]))
 
-        pdf.set_font("Helvetica","B",15)
+    content.append(Spacer(1, 20))
+    content.append(Paragraph("<b>Transcript</b>", styles["Heading2"]))
+    content.append(Spacer(1, 10))
+    content.append(Paragraph(transcript[:3000], styles["BodyText"]))
 
-        pdf.multi_cell(0,10,title)
+    doc.build(content)
 
-        pdf.ln(4)
-
-        pdf.set_font("Helvetica",size=11)
-
-        content=str(content)
-
-        # safer encoding
-        content=content.encode("latin-1","replace").decode("latin-1")
-
-        pdf.multi_cell(0,7,content)
-
-        return bytes(pdf.output(dest="S"))
-
-    except Exception as e:
-
-        print("PDF ERROR:",e)
-
-        return None
+    buffer.seek(0)
+    return buffer
