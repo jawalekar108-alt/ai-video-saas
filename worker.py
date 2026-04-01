@@ -13,13 +13,13 @@ from src.job_store import fail_job
 
 def process_video(url):
 
-    job_id=str(uuid.uuid4())
+    job_id = str(uuid.uuid4())
 
     create_job(job_id)
 
     try:
 
-        transcript=get_transcript(url)
+        transcript = get_transcript(url)
 
         if not transcript:
 
@@ -27,23 +27,24 @@ def process_video(url):
 
             return job_id
 
-        notes=analyze(transcript)
+
+        notes = analyze(transcript)
 
         finish_job(
 
-        job_id,
+            job_id,
 
-        {
+            {
 
-        "transcript":transcript,
+                "transcript": transcript,
 
-        "analysis":notes
+                "analysis": notes
 
-        }
+            }
 
         )
 
-    except:
+    except Exception:
 
         fail_job(job_id)
 
