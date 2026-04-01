@@ -1,15 +1,17 @@
+import whisper
 import os
 
-from openai import OpenAI
+model=None
 
-from config import OPENAI_API_KEY
+def load_model():
 
+    global model
 
-client=
+    if model is None:
 
-OpenAI(api_key=
+        model=whisper.load_model("base")
 
-OPENAI_API_KEY)
+    return model
 
 
 def transcribe_audio(file):
@@ -20,24 +22,20 @@ def transcribe_audio(file):
 
     try:
 
-        audio=open(file,"rb")
+        model=load_model()
 
-        transcript=
+        result=model.transcribe(
 
-        client.audio.transcriptions.create(
+        file,
 
-        model=
-
-        "gpt-4o-mini-transcribe",
-
-        file=audio
+        fp16=False
 
         )
 
-        return transcript.text
+        return result["text"]
 
     except Exception as e:
 
-        print("Transcription failed",e)
+        print("Whisper failed:",e)
 
         return None
