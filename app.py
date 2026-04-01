@@ -1,77 +1,75 @@
 import streamlit as st
-
 import requests
-
 import time
 
+API = "http://localhost:8000"
 
-API="http://localhost:8000"
-
-
-st.title(
-
-"AI Video Intelligence"
-
+st.set_page_config(
+    page_title="AI Video Intelligence",
+    page_icon="🎬",
+    layout="wide"
 )
 
-url=st.text_input(
+st.title("🎬 AI Video Intelligence")
 
-"YouTube URL"
+url = st.text_input("Enter YouTube URL")
 
-)
+if st.button("Analyze Video"):
 
-if st.button("Analyze"):
+    if not url:
 
-    res=requests.get(
+        st.warning("Enter URL")
 
-    f"{API}/process",
+    else:
 
-    params={"url":url}
+        response = requests.get(
 
-    )
+            f"{API}/process",
 
-   job_id = res.json()["job_id"]
+            params={"url": url}
 
-    st.session_state.job_id=job_id
+        )
+
+        data = response.json()
+
+        job_id = data["job_id"]
+
+        st.session_state["job_id"] = job_id
 
 
 if "job_id" in st.session_state:
 
-    job_id=
+    job_id = st.session_state["job_id"]
 
-    st.session_state.job_id
+    status_response = requests.get(
 
-    status=
+        f"{API}/status",
 
-    requests.get(
+        params={"job_id": job_id}
 
-    f"{API}/status",
+    )
 
-    params={"job_id":job_id}
-
-    ).json()
+    status = status_response.json()
 
 
-    if status["status"]=="processing":
+    if status["status"] == "processing":
 
-        st.info("Processing...")
+        st.info("Processing video...")
 
-        time.sleep(3)
+        time.sleep(2)
 
         st.rerun()
 
 
-    elif status["status"]=="done":
+    elif status["status"] == "done":
 
-        st.success("Complete")
+        st.success("Analysis complete")
 
-        st.write(
+        st.subheader("AI Notes")
 
-        status["result"]["analysis"]
-
-        )
+        st.write(status["result"]["analysis"])
 
 
-    elif status["status"]=="failed":
+    elif status["status"] == "failed":
 
-        st.error("Failed")
+        st.error("Processing failed")
