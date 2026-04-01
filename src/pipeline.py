@@ -1,45 +1,27 @@
-from src.download import get_youtube_transcript
-from src.download_audio import download_audio
-from src.transcribe import transcribe_audio
+from src.transcript_engine import get_transcript
+from src.analyzer import analyze
 
-def get_transcript(url):
 
-    # Try captions first
+def run_pipeline(url):
     try:
+        transcript = get_transcript(url)
 
-        text=get_youtube_transcript(url)
+        if not transcript:
+            return {
+                "status": "failed",
+                "error": "No transcript available"
+            }
 
-        if text and len(text)>100:
+        summary = analyze(transcript)
 
-            return text
+        return {
+            "status": "done",
+            "transcript": transcript,
+            "summary": summary
+        }
 
     except Exception as e:
-
-        print("Caption failed:",e)
-
-    # Try audio download
-    try:
-
-        audio,video_id=download_audio(url)
-
-        if audio:
-
-            transcript=transcribe_audio(audio)
-
-            if transcript and len(transcript)>100:
-
-                return transcript
-
-    except Exception as e:
-
-        print("Audio failed:",e)
-
-    # Final fallback
-    raise Exception(
-        "This video cannot be processed.\n"
-        "Possible reasons:\n"
-        "- DRM protection\n"
-        "- Bot protection\n"
-        "- No captions available\n"
-        "- Private video"
-    )
+        return {
+            "status": "failed",
+            "error": str(e)
+        }
