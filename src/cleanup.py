@@ -1,17 +1,11 @@
-import os
-
 import glob
-
+import os
 
 def cleanup():
 
     files=
 
-    glob.glob(
-
-    "temp/*"
-
-    )
+    glob.glob("temp/*")
 
     for f in files:
 
