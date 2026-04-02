@@ -9,22 +9,22 @@ def gemini_summary(text):
 
     try:
 
-        text=text[:10000]
+        text=text[:12000]
 
         prompt=f"""
 
-Create:
+Create a structured summary.
 
-SUMMARY
-KEY TOPICS
-IMPORTANT IDEAS
-ACTION STEPS
+SUMMARY:
+KEY POINTS:
+MAIN IDEAS:
+ACTION ITEMS:
 
 {text}
 
 """
 
-        response = client.models.generate_content(
+        response=client.models.generate_content(
 
             model="gemini-2.0-flash",
 
@@ -34,6 +34,8 @@ ACTION STEPS
 
         return response.text
 
-    except:
+    except Exception as e:
 
-        raise Exception("Gemini failed")
+        print("Gemini failed:",e)
+
+        raise
