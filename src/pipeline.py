@@ -1,19 +1,19 @@
-from src.transcript import get_transcript
-from src.summarizer import summarize
+from transcript_engine import get_transcript
+from gemini_client import gemini_summary
+from groq_client import groq_summary
 
 def process_video(url):
 
-    text = get_transcript(url)
+    text=get_transcript(url)
 
-    if text == "Transcript unavailable":
+    if not text or text=="Transcript unavailable":
 
-        return """
-        Could not extract transcript.
+        return "Could not extract transcript"
 
-        Try:
-        • Videos with captions
-        • Educational videos
-        • Talks
-        """
+    try:
 
-    return summarize(text)
+        return gemini_summary(text)
+
+    except:
+
+        return groq_summary(text)
