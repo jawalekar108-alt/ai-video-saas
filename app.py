@@ -16,5 +16,6 @@ if url:
             summary = process_video(url)
 
             st.subheader("Summary")
-
+        
+            st.write("Processing transcript...")
             st.write(summary)
