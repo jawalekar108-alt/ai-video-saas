@@ -1,5 +1,5 @@
 import streamlit as st
-from pipeline import process_video
+from src.pipeline import process_video
 
 st.set_page_config(page_title="AI Video Summarizer")
 
