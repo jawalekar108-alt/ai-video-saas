@@ -1,5 +1,5 @@
-from transcript import get_transcript
-from summarizer import summarize
+from src.transcript import get_transcript
+from src.summarizer import summarize
 
 def process_video(url):
 
