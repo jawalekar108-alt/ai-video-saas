@@ -6,15 +6,16 @@ from groq import Groq
 
 client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
-
 def extract_video_id(url):
 
     match = re.search(r"(?:v=|youtu\.be/)([^&?/]+)", url)
 
-    return match.group(1) if match else None
+    if not match:
+        return None
+
+    return match.group(1)
 
 
-# FAST METHOD (preferred)
 def get_captions(video_id):
 
     try:
@@ -25,104 +26,106 @@ def get_captions(video_id):
 
         text = " ".join([t.text for t in transcript])
 
-        if len(text) > 50:
+        if text and len(text) > 100:
             return text
 
-    except:
-        pass
+    except Exception as e:
+
+        print("Transcript API failed:",e)
 
     return None
 
 
-# FALLBACK METHOD
 def download_audio(url):
 
     try:
 
         ydl_opts = {
 
-            "format": "bestaudio/best",
+            "format":"bestaudio/best",
 
-            "outtmpl": "audio.%(ext)s",
+            "outtmpl":"audio.%(ext)s",
 
-            "quiet": True,
+            "quiet":True,
 
-            "no_warnings": True,
+            "no_warnings":True,
 
-            "js_runtimes": ["node"]
+            "js_runtimes":["node"]
 
         }
 
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
 
-            info = ydl.extract_info(url, download=True)
+            info=ydl.extract_info(url,download=True)
 
-            return ydl.prepare_filename(info)
+            file=ydl.prepare_filename(info)
 
-    except:
+            return file
+
+    except Exception as e:
+
+        print("yt-dlp failed:",e)
 
         return None
 
 
-# AI TRANSCRIPTION FALLBACK
-def transcribe(file):
+def transcribe(audio_file):
 
     try:
 
-        with open(file,"rb") as f:
+        with open(audio_file,"rb") as f:
 
-            res = client.audio.transcriptions.create(
+            res=client.audio.transcriptions.create(
 
                 file=f,
 
-                model="whisper-large-v3",
-
-                response_format="text"
+                model="whisper-large-v3-turbo"
 
             )
 
-        return res
+        return res.text
 
-    except:
+    except Exception as e:
+
+        print("Whisper failed:",e)
 
         return None
 
 
-# MAIN PIPELINE
 def get_transcript(url):
 
-    video_id = extract_video_id(url)
+    video_id=extract_video_id(url)
 
     if not video_id:
-        return "Invalid YouTube URL"
+
+        return None
 
 
-    # STEP 1 (FAST)
-    captions = get_captions(video_id)
+    # STEP 1 captions
+    text=get_captions(video_id)
 
-    if captions:
-        return captions
+    if text:
+
+        print("Using captions")
+
+        return text
 
 
-    # STEP 2 (FALLBACK)
-    audio = download_audio(url)
+    # STEP 2 whisper fallback
+    audio=download_audio(url)
 
     if not audio:
-        return "Transcript unavailable"
+
+        return None
 
 
-    text = transcribe(audio)
+    text=transcribe(audio)
 
 
-    # CLEANUP
     try:
         os.remove(audio)
     except:
         pass
-
-
-    if not text:
-        return "Transcript unavailable"
 
 
     return text
