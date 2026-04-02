@@ -5,6 +5,8 @@ def process_video(url):
 
     text = get_transcript(url)
 
-    summary = summarize(text)
+    if text == "Transcript unavailable for this video":
 
-    return summary
+        return "No transcript available. Try another video."
+
+    return summarize(text)
