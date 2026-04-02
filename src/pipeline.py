@@ -1,6 +1,6 @@
-from transcript_engine import get_transcript
-from gemini_client import gemini_summary
-from groq_client import groq_summary
+from src.transcript_engine import get_transcript
+from src.gemini_client import gemini_summary
+from src.groq_client import groq_summary
 
 def process_video(url):
 
