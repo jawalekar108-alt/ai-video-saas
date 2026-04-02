@@ -4,13 +4,13 @@ from src.groq_client import groq_summary
 
 def process_video(url):
 
-    text=get_transcript(url)
+    text = get_transcript(url)
 
     if not text:
 
         return "Could not extract transcript from this video."
 
-    if len(text)<200:
+    if len(text) < 200:
 
         return "Transcript too short."
 
