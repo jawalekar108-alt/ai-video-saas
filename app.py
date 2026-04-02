@@ -1,59 +1,22 @@
 import streamlit as st
-import uuid
-import time
+from pipeline import process_video
 
-from src.pipeline import run_pipeline
-from src.export import export_pdf
+st.set_page_config(page_title="AI Video Summarizer")
 
-# ---------------- SESSION ----------------
-if "job" not in st.session_state:
-    st.session_state.job = None
+st.title("AI YouTube Video Summarizer")
 
-st.set_page_config(page_title="AI Video Intelligence", page_icon="🎬")
+url = st.text_input("Enter YouTube URL")
 
-st.title("🎬 AI Video Intelligence")
-
-url = st.text_input("Paste YouTube URL")
-
-# 🎬 Preview
 if url:
-    try:
-        st.video(url)
-    except:
-        st.warning("Invalid URL")
 
-# ---------------- RUN ----------------
-if st.button("Analyze"):
-    if not url:
-        st.warning("Enter URL")
-    else:
-        with st.spinner("Processing video..."):
-            result = run_pipeline(url)
-            st.session_state.job = result
+    st.video(url)
 
-# ---------------- RESULT ----------------
-job = st.session_state.job
+    if st.button("Generate Summary"):
 
-if job:
-    if job["status"] == "failed":
-        st.error("❌ Failed")
-        st.code(job.get("error", "Unknown error"))
+        with st.spinner("Processing..."):
 
-    else:
-        st.success("✅ Done")
+            summary = process_video(url)
 
-        st.subheader("🧠 Summary")
-        st.write(job["summary"])
+            st.subheader("Summary")
 
-        with st.expander("📜 Transcript"):
-            st.write(job["transcript"])
-
-        # 📄 PDF EXPORT
-        pdf = export_pdf(job["summary"], job["transcript"])
-
-        st.download_button(
-            "📄 Download PDF",
-            pdf,
-            file_name="analysis.pdf",
-            mime="application/pdf"
-        )
+            st.write(summary)
