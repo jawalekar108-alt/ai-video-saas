@@ -1,18 +1,34 @@
-import google.generativeai as genai
+from google import genai
 import os
 
-genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
-
-model = genai.GenerativeModel('gemini-1.5-flash')
+client = genai.Client(
+    api_key=os.getenv("GEMINI_API_KEY")
+)
 
 def summarize(text):
 
-    prompt = f"""
-    Summarize this YouTube transcript clearly:
+    try:
 
-    {text[:12000]}
-    """
+        text = text[:15000]
 
-    response = model.generate_content(prompt)
+        prompt = f"""
+        Create a structured summary:
 
-    return response.text
+        1 Key points
+        2 Main ideas
+        3 Short summary
+
+        Transcript:
+        {text}
+        """
+
+        response = client.models.generate_content(
+            model="gemini-1.5-flash",
+            contents=prompt
+        )
+
+        return response.text
+
+    except Exception as e:
+
+        return "Summary generation failed. Try another video."
