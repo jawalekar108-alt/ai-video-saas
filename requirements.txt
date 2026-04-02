@@ -1,12 +1,4 @@
 streamlit
-fastapi
-uvicorn
-groq
-python-dotenv
-youtube-transcript-api
 yt-dlp
-openai-whisper
-torch
-requests
-fpdf
-reportlab
+youtube-transcript-api
+google-generativeai
