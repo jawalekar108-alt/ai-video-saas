@@ -1,11 +1,9 @@
 import os
-
 from groq import Groq
-
 
 def groq_summary(text):
 
-    api_key=os.getenv("GROQ_API_KEY")
+    api_key = os.getenv("GROQ_API_KEY")
 
     if not api_key:
         return "Groq API key missing"
@@ -15,11 +13,11 @@ def groq_summary(text):
 
     try:
 
-        client=Groq(api_key=api_key)
+        client = Groq(api_key=api_key)
 
-        text=text[:8000]
+        text = text[:10000]
 
-        res=client.chat.completions.create(
+        res = client.chat.completions.create(
 
             model="llama-3.1-8b-instant",
 
@@ -30,29 +28,25 @@ def groq_summary(text):
             messages=[
 
                 {
-
                 "role":"system",
 
                 "content":"""
-
 Create:
 
 SUMMARY
 
 KEY POINTS
 
+MAIN IDEAS
+
 ACTION ITEMS
-
 """
-
                 },
 
                 {
-
                 "role":"user",
 
                 "content":text
-
                 }
 
             ]
@@ -63,4 +57,4 @@ ACTION ITEMS
 
     except Exception as e:
 
-        return f"Groq summary failed: {str(e)}"
+        return "Summary generation failed"
