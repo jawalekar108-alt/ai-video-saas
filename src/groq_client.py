@@ -3,58 +3,43 @@ from groq import Groq
 
 def groq_summary(text):
 
-    api_key = os.getenv("GROQ_API_KEY")
+    client = Groq(
+        api_key=os.getenv("GROQ_API_KEY")
+    )
 
-    if not api_key:
-        return "Groq API key missing"
+    text=text[:10000]
 
-    if not text:
-        return "No transcript available"
+    res = client.chat.completions.create(
 
-    try:
+        model="llama-3.1-8b-instant",
 
-        client = Groq(api_key=api_key)
+        temperature=0.2,
 
-        text = text[:10000]
+        max_tokens=1200,
 
-        res = client.chat.completions.create(
+        messages=[
 
-            model="llama-3.1-8b-instant",
+            {
+            "role":"system",
 
-            temperature=0.2,
-
-            max_tokens=1200,
-
-            messages=[
-
-                {
-                "role":"system",
-
-                "content":"""
+            "content":"""
 Create:
 
 SUMMARY
-
 KEY POINTS
-
 MAIN IDEAS
-
 ACTION ITEMS
 """
-                },
+            },
 
-                {
-                "role":"user",
+            {
+            "role":"user",
 
-                "content":text
-                }
+            "content":text
+            }
 
-            ]
+        ]
 
-        )
+    )
 
-        return res.choices[0].message.content
-
-    except Exception as e:
-
-        return "Summary generation failed"
+    return res.choices[0].message.content
