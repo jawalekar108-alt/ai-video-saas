@@ -1,6 +1,8 @@
 import streamlit as st
 from src.pipeline import process_video
 
+st.set_page_config(page_title="AI Video Summarizer")
+
 st.title("AI YouTube Video Summarizer")
 
 url = st.text_input("Enter YouTube URL")
@@ -11,11 +13,10 @@ if url:
 
     if st.button("Generate Summary"):
 
-        with st.spinner("Generating summary..."):
+        with st.spinner("Processing video..."):
 
             summary = process_video(url)
 
-            st.subheader("Summary")
-        
-            st.write("Processing transcript...")
-            st.write(summary)
+        st.subheader("Summary")
+
+        st.write(summary)
