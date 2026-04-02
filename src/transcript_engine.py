@@ -6,6 +6,7 @@ from groq import Groq
 
 client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
+
 def extract_video_id(url):
 
     match = re.search(r"(?:v=|youtu\.be/)([^&?/]+)", url)
@@ -26,12 +27,13 @@ def get_captions(video_id):
 
         text = " ".join([t.text for t in transcript])
 
-        if text and len(text) > 100:
+        if len(text) > 100:
+
             return text
 
-    except Exception as e:
+    except:
 
-        print("Transcript API failed:",e)
+        pass
 
     return None
 
@@ -56,15 +58,13 @@ def download_audio(url):
 
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
 
-            info=ydl.extract_info(url,download=True)
+            info = ydl.extract_info(url,download=True)
 
-            file=ydl.prepare_filename(info)
+            file = ydl.prepare_filename(info)
 
             return file
 
-    except Exception as e:
-
-        print("yt-dlp failed:",e)
+    except:
 
         return None
 
@@ -75,7 +75,7 @@ def transcribe(audio_file):
 
         with open(audio_file,"rb") as f:
 
-            res=client.audio.transcriptions.create(
+            res = client.audio.transcriptions.create(
 
                 file=f,
 
@@ -85,41 +85,37 @@ def transcribe(audio_file):
 
         return res.text
 
-    except Exception as e:
-
-        print("Whisper failed:",e)
+    except:
 
         return None
 
 
 def get_transcript(url):
 
-    video_id=extract_video_id(url)
+    video_id = extract_video_id(url)
 
     if not video_id:
 
         return None
 
 
-    # STEP 1 captions
-    text=get_captions(video_id)
+    # FAST captions first
+    text = get_captions(video_id)
 
     if text:
-
-        print("Using captions")
 
         return text
 
 
-    # STEP 2 whisper fallback
-    audio=download_audio(url)
+    # Whisper fallback
+    audio = download_audio(url)
 
     if not audio:
 
         return None
 
 
-    text=transcribe(audio)
+    text = transcribe(audio)
 
 
     try:
