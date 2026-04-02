@@ -6,9 +6,13 @@ def process_video(url):
 
     text=get_transcript(url)
 
-    if not text or text=="Transcript unavailable":
+    if not text:
 
-        return "Could not extract transcript"
+        return "Could not extract transcript from this video."
+
+    if len(text)<200:
+
+        return "Transcript too short."
 
     try:
 
