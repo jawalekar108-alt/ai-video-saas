@@ -1,34 +1,57 @@
-from google import genai
-import os
+import yt_dlp
 
-client = genai.Client(
-    api_key=os.getenv("GEMINI_API_KEY")
-)
+from src.transcribe import transcribe_audio
+from src.summarize import summarize
 
-def summarize(text):
+
+def run_pipeline(url):
 
     try:
 
-        text = text[:15000]
+        ydl_opts={
 
-        prompt = f"""
-        Create a structured summary:
+            'format':'bestaudio/best',
 
-        1 Key points
-        2 Main ideas
-        3 Short summary
+            'outtmpl':'temp_audio.%(ext)s',
 
-        Transcript:
-        {text}
-        """
+            'noplaylist':True
 
-        response = client.models.generate_content(
-            model="gemini-1.5-flash",
-            contents=prompt
-        )
+        }
 
-        return response.text
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+
+            ydl.download([url])
+
+        transcript=transcribe_audio("temp_audio.m4a")
+
+        if transcript is None:
+
+            return {
+
+                "status":"failed",
+
+                "error":"Transcription failed"
+
+            }
+
+        summary=summarize(transcript)
+
+        return {
+
+            "status":"success",
+
+            "transcript":transcript,
+
+            "summary":summary
+
+        }
 
     except Exception as e:
 
-        return "Summary generation failed. Try another video."
+        return {
+
+            "status":"failed",
+
+            "error":str(e)
+
+        }
