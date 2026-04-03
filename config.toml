@@ -1,3 +1,7 @@
 [server]
 enableCORS = false
 enableXsrfProtection = false
+
+OPENAI_API_KEY="AIzaSyCuywELlv6XzzyNtAHnt9knJw7p5FbTF90"
+GROQ_API_KEY="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"
+
