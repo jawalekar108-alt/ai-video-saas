@@ -1,7 +1,6 @@
-import whisper
-import os
+from faster_whisper import WhisperModel
 
-model=None
+model = None
 
 def load_model():
 
@@ -9,33 +8,33 @@ def load_model():
 
     if model is None:
 
-        model=whisper.load_model("base")
+        model = WhisperModel(
+            "base",
+            device="cpu",
+            compute_type="int8"
+        )
 
     return model
 
 
 def transcribe_audio(file):
 
-    if not os.path.exists(file):
-
-        return None
-
     try:
 
-        model=load_model()
+        model = load_model()
 
-        result=model.transcribe(
+        segments, info = model.transcribe(file)
 
-        file,
+        text=""
 
-        fp16=False
+        for segment in segments:
 
-        )
+            text += segment.text + " "
 
-        return result["text"]
+        return text
 
     except Exception as e:
 
-        print("Whisper failed:",e)
+        print("Transcription failed:",e)
 
         return None
