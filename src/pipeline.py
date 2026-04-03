@@ -1,23 +1,57 @@
-from src.transcript_engine import get_transcript
-from src.gemini_client import gemini_summary
-from src.groq_client import groq_summary
+import yt_dlp
 
-def process_video(url):
+from src.transcribe import transcribe_audio
+from src.summarize import summarize
 
-    text = get_transcript(url)
 
-    if not text:
-
-        return "Could not extract transcript from this video."
-
-    if len(text) < 200:
-
-        return "Transcript too short."
+def run_pipeline(url):
 
     try:
 
-        return gemini_summary(text)
+        ydl_opts={
 
-    except:
+            'format':'bestaudio/best',
 
-        return groq_summary(text)
+            'outtmpl':'temp_audio.%(ext)s',
+
+            'noplaylist':True
+
+        }
+
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+
+            ydl.download([url])
+
+        transcript=transcribe_audio("temp_audio.m4a")
+
+        if transcript is None:
+
+            return {
+
+                "status":"failed",
+
+                "error":"Transcription failed"
+
+            }
+
+        summary=summarize(transcript)
+
+        return {
+
+            "status":"success",
+
+            "transcript":transcript,
+
+            "summary":summary
+
+        }
+
+    except Exception as e:
+
+        return {
+
+            "status":"failed",
+
+            "error":str(e)
+
+        }
