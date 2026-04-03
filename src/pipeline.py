@@ -1,7 +1,7 @@
 import yt_dlp
 
 from src.transcribe import transcribe_audio
-from src.summarize import summarize
+from src.summarizer import summarize
 
 
 def run_pipeline(url):
