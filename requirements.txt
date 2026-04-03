@@ -3,3 +3,9 @@ yt-dlp
 youtube-transcript-api==0.6.2
 groq
 google-genai
+yt-dlp
+faster-whisper
+transformers
+torch
+ffmpeg-python
+sentencepiece
