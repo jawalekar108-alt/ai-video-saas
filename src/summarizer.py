@@ -1,57 +1,63 @@
-import yt_dlp
+from transformers import pipeline
 
-from src.transcribe import transcribe_audio
-from src.summarizer import summarize
+summarizer = None
 
 
-def run_pipeline(url):
+def load_model():
+
+    global summarizer
+
+    if summarizer is None:
+
+        summarizer = pipeline(
+
+            "summarization",
+
+            model="sshleifer/distilbart-cnn-12-6"
+
+        )
+
+    return summarizer
+
+
+def summarize(text):
 
     try:
 
-        ydl_opts={
+        model = load_model()
 
-            'format':'bestaudio/best',
+        max_chunk = 1000
 
-            'outtmpl':'temp_audio.%(ext)s',
+        chunks = [
 
-            'noplaylist':True
+            text[i:i+max_chunk]
 
-        }
+            for i in range(0,len(text),max_chunk)
 
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+        ]
 
-            ydl.download([url])
+        final_summary=""
 
-        transcript=transcribe_audio("temp_audio.m4a")
+        for chunk in chunks:
 
-        if transcript is None:
+            result=model(
 
-            return {
+                chunk,
 
-                "status":"failed",
+                max_length=150,
 
-                "error":"Transcription failed"
+                min_length=40,
 
-            }
+                do_sample=False
 
-        summary=summarize(transcript)
+            )
 
-        return {
+            final_summary+=result[0]['summary_text']+" "
 
-            "status":"success",
-
-            "transcript":transcript,
-
-            "summary":summary
-
-        }
+        return final_summary
 
     except Exception as e:
 
-        return {
+        print("Summary failed:",e)
 
-            "status":"failed",
-
-            "error":str(e)
-
-        }
+        return None
